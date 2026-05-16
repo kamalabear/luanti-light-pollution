@@ -12,7 +12,7 @@ local DEFAULTS = {
     lerp_rate           = 0.02,
     zone_ttl            = 30,
     max_zone_radius     = 2000,
-    max_mapblock_score  = 500,
+    max_mapblock_score  = 40,
     light_score_max     = 10000,
     source_types        = "both",
 }
