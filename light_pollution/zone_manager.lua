@@ -79,13 +79,21 @@ function zone_manager.get_intensity(pos)
             }
         else
             local center    = compute_centroid(result.positions)
-            local radius    = base_r + result.light_score / scale
-            local intensity = math.min(result.light_score / LIGHT_SCORE_MAX, max_i)
+            local raw_score = result.light_score
+            -- Use sqrt growth for radius so very large raw scores don't
+            -- blow up the computed zone radius. Also cap by configured
+            -- max_zone_radius to keep radii bounded for performance.
+            local radius    = base_r + math.sqrt(raw_score) / scale
+            local max_radius = config.get("max_zone_radius")
+            if max_radius and max_radius > 0 then
+                radius = math.min(radius, max_radius)
+            end
+            local intensity = math.min(raw_score / LIGHT_SCORE_MAX, max_i)
             zone_cache[key] = {
                 center      = center,
                 radius      = radius,
                 intensity   = intensity,
-                light_score = result.light_score,
+                light_score = raw_score,
                 updated_at  = now,
             }
         end
