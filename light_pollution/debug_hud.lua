@@ -5,6 +5,7 @@ debug_hud = {}
 
 local hud_ids = {}    -- player_name -> hud id
 local active   = {}   -- player_name -> bool
+local instant  = {}   -- player_name -> bool
 
 local function build_text(state, debug_state)
     local tod = string.format("%.3f", minetest.get_timeofday())
@@ -18,18 +19,20 @@ local function build_text(state, debug_state)
     local horizon = debug_state and debug_state.horizon_color or "---"
     local zenith = debug_state and debug_state.zenith_color or "---"
     local stars = debug_state and (debug_state.star_scale and string.format("%.2f", debug_state.star_scale) or "---") or "---"
+    local instant_mode = state and state.debug_instant and "ON" or "OFF"
 
     local lines = {
         "[light_pollution debug]",
         string.format("tod:     %s   active: %s", tod, is_active),
         string.format("raw:     %s   vis: %s", raw_s, vis),
         string.format("sky_on:  %s", sky_on),
+        string.format("instant: %s", instant_mode),
         string.format("score:   %d     radius: %d", score, radius),
         string.format("horizon: %s", horizon),
         string.format("zenith:  %s", zenith),
         string.format("stars:   %s", stars),
     }
-    return table.concat(lines, "\n")
+    return minetest.colorize("#ffffff", table.concat(lines, "\n"))
 end
 
 function debug_hud.toggle(player)
@@ -63,6 +66,17 @@ function debug_hud.update(player, state, debug_state)
     player:hud_change(hud_ids[name], "text", text)
 end
 
+function debug_hud.toggle_instant(player)
+    if not player then return false end
+    local name = player:get_player_name()
+    instant[name] = not instant[name]
+    return instant[name]
+end
+
+function debug_hud.instant_enabled(player_name)
+    return instant[player_name] == true
+end
+
 minetest.register_chatcommand("lp_debug", {
     params = "",
     description = "Toggle light_pollution debug HUD",
@@ -74,6 +88,17 @@ minetest.register_chatcommand("lp_debug", {
     end,
 })
 
+minetest.register_chatcommand("lp_debug_instant", {
+    params = "",
+    description = "Toggle instant light_pollution debug apply mode",
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        if not player then return false, "Player not found" end
+        local enabled = debug_hud.toggle_instant(player)
+        return true, "Instant debug apply " .. (enabled and "enabled" or "disabled")
+    end,
+})
+
 minetest.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
     if hud_ids[name] then
@@ -81,4 +106,5 @@ minetest.register_on_leaveplayer(function(player)
         hud_ids[name] = nil
     end
     active[name] = nil
+    instant[name] = nil
 end)

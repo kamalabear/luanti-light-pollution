@@ -40,6 +40,8 @@ function effect_engine.update(player)
     local move_thresh  = config.get("move_threshold")
     local scan_radius  = config.get("scan_radius")
 
+    state.debug_instant = debug_hud and debug_hud.instant_enabled(name) or false
+
     -- Decide whether to rescan.
     local needs_scan
     if state.last_pos == nil then
@@ -66,7 +68,11 @@ function effect_engine.update(player)
 
     -- Lerp current_intensity toward target_intensity.
     local prev = state.current_intensity
-    state.current_intensity = prev + (state.target_intensity - prev) * lerp_rate
+    if state.debug_instant then
+        state.current_intensity = state.target_intensity
+    else
+        state.current_intensity = prev + (state.target_intensity - prev) * lerp_rate
+    end
 
     -- Apply or restore sky when the intensity changes meaningfully.
     if state.current_intensity < 0.001 then
