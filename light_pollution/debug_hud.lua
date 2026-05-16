@@ -99,6 +99,23 @@ minetest.register_chatcommand("lp_debug_instant", {
     end,
 })
 
+minetest.register_chatcommand("lp_scan", {
+    params = "",
+    description = "Force a light_pollution scan at your position and report the raw score",
+    func = function(name)
+        local player = minetest.get_player_by_name(name)
+        if not player then return false, "Player not found" end
+        local pos = player:get_pos()
+        local radius = config.get("scan_radius")
+        local result = scanner.scan_around(pos, radius)
+        local msg = string.format(
+            "scan radius=%d  score=%d  sources=%d",
+            radius, result.light_score, #result.positions)
+        minetest.log("action", "[light_pollution] /lp_scan by " .. name .. ": " .. msg)
+        return true, msg
+    end,
+})
+
 minetest.register_on_leaveplayer(function(player)
     local name = player:get_player_name()
     if hud_ids[name] then

@@ -67,8 +67,14 @@ function scanner.rebuild_content_id_cache()
         local cid = minetest.get_content_id(name)
         if cid and cid ~= unknown_cid and cid ~= air_cid then
             content_id_cache[cid] = data.weight
+            minetest.log("action", "[light_pollution] registered source: " ..
+                name .. " (cid=" .. tostring(cid) .. ", weight=" .. tostring(data.weight) .. ")")
+        else
+            minetest.log("warning", "[light_pollution] source node not found in this game: " .. name)
         end
     end
+    minetest.log("action", "[light_pollution] content_id_cache built: " ..
+        tostring(#(function() local t={} for _ in pairs(content_id_cache) do t[#t+1]=1 end return t end)()) .. " entries")
 end
 
 function scanner.scan_around(pos, radius)

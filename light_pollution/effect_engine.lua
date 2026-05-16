@@ -56,6 +56,13 @@ function effect_engine.update(player)
     end
 
     if needs_scan then
+        -- When the player moves, mark the current position dirty so zone_manager
+        -- bypasses its TTL cache and performs a fresh VoxelManip scan.
+        -- Without this, zone_manager may return a stale zero-intensity result
+        -- for the player's mapblock even though they've walked into lava territory.
+        if state.last_pos then
+            scanner.mark_dirty(pos)
+        end
         state.target_intensity, state.zone_debug = zone_manager.get_intensity(pos)
         state.last_pos         = {x = pos.x, y = pos.y, z = pos.z}
     end
