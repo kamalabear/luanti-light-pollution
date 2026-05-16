@@ -2,8 +2,6 @@
 -- Computes, caches, and queries light pollution zones from scanner data.
 -- Public interface: zone_manager.get_intensity(pos) -> number (0.0–1.0)
 
-local LIGHT_SCORE_MAX = 1000
-
 local zone_cache = {}
 
 local function mapblock_key(pos)
@@ -52,6 +50,7 @@ function zone_manager.get_intensity(pos)
     local max_i       = config.get("max_intensity")
     local base_r      = config.get("base_radius")
     local scale       = config.get("radius_scale_factor")
+    local score_max   = config.get("light_score_max")
     local now         = os.time()
 
     -- Determine whether we need to rescan.
@@ -88,7 +87,7 @@ function zone_manager.get_intensity(pos)
             if max_radius and max_radius > 0 then
                 radius = math.min(radius, max_radius)
             end
-            local intensity = math.min(raw_score / LIGHT_SCORE_MAX, max_i)
+            local intensity = math.min(raw_score / score_max, max_i)
             zone_cache[key] = {
                 center      = center,
                 radius      = radius,

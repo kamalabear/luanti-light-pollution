@@ -12,6 +12,8 @@ local DEFAULTS = {
     lerp_rate           = 0.02,
     zone_ttl            = 30,
     max_zone_radius     = 2000,
+    max_mapblock_score  = 500,
+    light_score_max     = 10000,
     source_types        = "both",
 }
 
@@ -25,12 +27,14 @@ local VALIDATORS = {
     lerp_rate           = function(v) return v >= 0.001 and v <= 1.0 end,
     zone_ttl            = function(v) return v >= 0 end,
     max_zone_radius     = function(v) return v >= 0 end,
+    max_mapblock_score  = function(v) return v >= 0 end,
+    light_score_max     = function(v) return v > 0 end,
     source_types        = function(v)
         return v == "natural" or v == "artificial" or v == "both"
     end,
 }
 
-local INT_KEYS   = {"scan_radius", "move_threshold", "base_radius", "zone_ttl", "max_zone_radius"}
+local INT_KEYS   = {"scan_radius", "move_threshold", "base_radius", "zone_ttl", "max_zone_radius", "max_mapblock_score", "light_score_max"}
 local FLOAT_KEYS = {"scan_interval", "radius_scale_factor", "max_intensity", "lerp_rate"}
 local STR_KEYS   = {"source_types"}
 

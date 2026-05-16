@@ -78,6 +78,8 @@ function scanner.rebuild_content_id_cache()
 end
 
 function scanner.scan_around(pos, radius)
+    local max_mb_score = config.get("max_mapblock_score")
+
     local p1 = {x = pos.x - radius, y = pos.y - radius, z = pos.z - radius}
     local p2 = {x = pos.x + radius, y = pos.y + radius, z = pos.z + radius}
 
@@ -90,9 +92,11 @@ function scanner.scan_around(pos, radius)
     local data        = vm:get_data()
     local area        = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
 
-    local light_score = 0
-    local positions   = {}
-
+    -- Accumulate source node weights per 16³ mapblock.
+    -- This prevents a dense lava field (56k nodes) from producing an
+    -- astronomically large score; each mapblock contributes at most
+    -- max_mapblock_score regardless of how many source nodes it contains.
+    local mb_scores = {}
     for z = emin.z, emax.z do
         for y = emin.y, emax.y do
             for x = emin.x, emax.x do
@@ -100,11 +104,23 @@ function scanner.scan_around(pos, radius)
                 local cid    = data[i]
                 local weight = content_id_cache[cid]
                 if weight then
-                    light_score = light_score + weight
-                    table.insert(positions, {x = x, y = y, z = z, weight = weight})
+                    local key = mapblock_key({x = x, y = y, z = z})
+                    mb_scores[key] = (mb_scores[key] or 0) + weight
                 end
             end
         end
+    end
+
+    -- Cap each mapblock contribution and sum totals.
+    -- Positions are mapblock centroids weighted by their capped score.
+    local light_score = 0
+    local positions   = {}
+    for key, raw in pairs(mb_scores) do
+        local capped = (max_mb_score > 0) and math.min(raw, max_mb_score) or raw
+        light_score  = light_score + capped
+        local center = key_to_center(key)
+        center.weight = capped
+        table.insert(positions, center)
     end
 
     return {light_score = light_score, positions = positions}
