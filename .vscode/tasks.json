@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+  {
+    "label": "Session Open Guard",
+    "type": "shell",
+    "command": "powershell",
+    "args": [
+    "-NoProfile",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-File",
+    "${workspaceFolder}\\.vscode\\session-open-guard.ps1"
+    ],
+    "runOptions": {
+    "runOn": "folderOpen"
+    },
+    "problemMatcher": []
+  }
+  ]
+}

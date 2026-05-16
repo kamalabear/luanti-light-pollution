@@ -1,0 +1,28 @@
+# Light Pollution Mod Settings (Iteration 1 stub — full documentation in Iteration 2)
+
+light_pollution.scan_radius (int) 64
+    Node radius to scan around each player for light sources.
+
+light_pollution.scan_interval (float) 5.0
+    Seconds between full rescans per player.
+
+light_pollution.move_threshold (int) 8
+    Minimum nodes a player must move before triggering a rescan between intervals.
+
+light_pollution.base_radius (int) 32
+    Minimum zone radius (nodes) when the light threshold is met.
+
+light_pollution.radius_scale_factor (float) 10.0
+    Divides the total light score to determine additional zone radius beyond base_radius.
+
+light_pollution.max_intensity (float) 1.0
+    Maximum pollution intensity value (0.0-1.0).
+
+light_pollution.lerp_rate (float) 0.02
+    Interpolation rate per globalstep. Higher values produce faster transitions.
+
+light_pollution.zone_ttl (int) 30
+    Seconds before a cached zone entry expires regardless of dirty flag.
+
+light_pollution.source_types (string) both
+    Which node types contribute to light pollution. Options: natural, artificial, both.

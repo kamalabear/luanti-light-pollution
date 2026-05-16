@@ -1,0 +1,106 @@
+diff --git a/light_pollution/effect_engine.lua b/light_pollution/effect_engine.lua
+index 0000000..0000000 100644
+--- a/light_pollution/effect_engine.lua
++++ b/light_pollution/effect_engine.lua
+@@ -27,6 +27,48 @@ local function deep_copy(t)
+     return copy
+ end
+ 
++local function capture_sky_state(player)
++    local ok, a, b, c, d = pcall(player.get_sky, player)
++    if not ok then
++        return {mode = "unknown"}
++    end
++
++    if type(a) == "table" then
++        return {
++            mode = "table",
++            value = deep_copy(a),
++        }
++    end
++
++    return {
++        mode = "legacy",
++        bgcolor = a,
++        sky_type = b,
++        textures = deep_copy(c),
++        clouds = d,
++    }
++end
++
++local function restore_sky(player, sky_state)
++    if not sky_state then return false end
++
++    if sky_state.mode == "table" and type(sky_state.value) == "table" then
++        local ok = pcall(player.set_sky, player, deep_copy(sky_state.value))
++        if ok then return true end
++    end
++
++    if sky_state.mode == "legacy" then
++        local ok = pcall(
++            player.set_sky,
++            player,
++            sky_state.bgcolor or "#000000",
++            sky_state.sky_type or "regular",
++            deep_copy(sky_state.textures),
++            sky_state.clouds)
++        if ok then return true end
++    end
++
++    return false
++end
++
+ local function apply_tint(player, saved_sky, intensity)
+     local color   = compute_sky_color(intensity)
+     local sky_def = deep_copy(saved_sky) or {}
+@@ -34,7 +76,16 @@ local function apply_tint(player, saved_sky, intensity)
+     sky_def.sky_color         = sky_def.sky_color or {}
+     sky_def.sky_color.night_sky     = color
+     sky_def.sky_color.night_horizon = color
+-    player:set_sky(sky_def)
++
++    -- Newer Luanti accepts a sky definition table.
++    local ok = pcall(player.set_sky, player, sky_def)
++    if ok then return end
++
++    -- Legacy Luanti expects positional arguments.
++    ok = pcall(player.set_sky, player, color, "plain")
++    if ok then return end
++
++    -- Last fallback: regular sky with explicit legacy signature.
++    pcall(player.set_sky, player, color, "regular", nil, true)
+ end
+ 
+ effect_engine = {}
+@@ -48,7 +99,7 @@ function effect_engine.update(player)
+         player_state[name] = {
+             current_intensity = 0,
+             target_intensity  = 0,
+-            sky_saved         = deep_copy(player:get_sky()) or {type = "regular"},
++            sky_saved         = capture_sky_state(player),
+             last_pos          = nil,
+             sky_applied       = false,
+         }
+@@ -91,11 +142,11 @@ function effect_engine.update(player)
+     -- Apply or restore sky when the intensity changes meaningfully.
+     if state.current_intensity < 0.001 then
+         if state.sky_applied then
+-            player:set_sky(deep_copy(state.sky_saved))
++            restore_sky(player, state.sky_saved)
+             state.sky_applied = false
+         end
+     elseif math.abs(state.current_intensity - prev) > 0.001 or not state.sky_applied then
+-        apply_tint(player, state.sky_saved, state.current_intensity)
++        apply_tint(player, state.sky_saved and state.sky_saved.value, state.current_intensity)
+         state.sky_applied = true
+     end
+ end
+@@ -103,7 +154,7 @@ minetest.register_on_leaveplayer(function(player)
+     local name  = player:get_player_name()
+     local state = player_state[name]
+     if state and state.sky_saved then
+-        player:set_sky(state.sky_saved)
++        restore_sky(player, state.sky_saved)
+     end
+     player_state[name] = nil
+ end)

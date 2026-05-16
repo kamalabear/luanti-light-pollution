@@ -1,0 +1,44 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "git commit": true,
+        "git push": true,
+        "git add": true,
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -File \\.vscode\\\\sync-workflow-pack\\.ps1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "Test-Path": true,
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -Command \"& \\.\\\\\\.vscode\\\\sync-workflow-pack\\.ps1\"; Test-Path \\.github/prompts/session-retro\\.prompt\\.md; Test-Path \\.github/instructions/session-retro\\.instructions\\.md$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -File \\.vscode\\\\sync-workflow-pack\\.ps1; \\$f1 = Test-Path \"\\.github\\\\prompts\\\\session-retro\\.prompt\\.md\"; \\$f2 = Test-Path \"\\.github\\\\instructions\\\\session-retro\\.instructions\\.md\"; Write-Host \"File 1: \\$f1\"; Write-Host \"File 2: \\$f2\"; Write-Host \"Both Exist: \\$\\(\\$f1 -and \\$f2\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "Push-Location": true,
+        "Pop-Location": true,
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\navia\\\\workspace\\\\luanti-light-pollution\\\\\\.vscode\\\\sync-workflow-pack\\.ps1\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Set-Location c:\\\\Users\\\\navia\\\\workspace\\\\luanti-modding-workspace; powershell -NoProfile -ExecutionPolicy Bypass -File \\.\\\\bootstrap-workflow-sync\\.ps1 -TargetWorkspace \\.\\.\\\\luanti-light-pollution$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -File \\.vscode\\\\session-open-guard\\.ps1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "git -C c:\\Users\\navia\\workspace\\luanti-modding-workspace": true,
+        "Copy-Item": true,
+        "/^Set-Location c:\\\\Users\\\\navia\\\\workspace\\\\luanti-modding-workspace; powershell -NoProfile -ExecutionPolicy Bypass -File \\.\\\\bootstrap-workflow-sync\\.ps1 -TargetWorkspace \\.\\.\\\\luanti-light-pollution; Set-Location c:\\\\Users\\\\navia\\\\workspace\\\\luanti-light-pollution; powershell -NoProfile -ExecutionPolicy Bypass -File \\.vscode\\\\session-open-guard\\.ps1; \\$res1 = Test-Path \\.vscode\\\\add-changelog-entry\\.ps1; \\$res2 = Test-Path \\.github\\\\instructions\\\\changelog-discipline\\.instructions\\.md; \\[PSCustomObject\\]@\\{ \"\\.vscode\\\\add-changelog-entry\\.ps1\" = \\$res1; \"\\.github\\\\instructions\\\\changelog-discipline\\.instructions\\.md\" = \\$res2 \\} \\| Format-List$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^powershell -NoProfile -ExecutionPolicy Bypass -File \\.vscode\\\\add-changelog-entry\\.ps1 -Title \"Enable changelog discipline\" -Why \"Establish a concise record of logical updates\" -Impact \"Future logical changes now have a single human-readable summary stream\" -FollowUp \"Use this helper before each logical commit\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
